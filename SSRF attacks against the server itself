@@ -1,0 +1,75 @@
+Trong một cuộc tấn công SSRF chống lại chính máy chủ, kẻ tấn công khiến ứng dụng 
+
+thực hiện một yêu cầu HTTP quay lại máy chủ đang lưu trữ ứng dụng, thông qua giao diện mạng vòng lặp của nó. 
+
+Điều này thường liên quan đến việc cung cấp URL có tên máy chủ như `127.0.0.1 '
+
+(địa chỉ IP dành riêng trỏ đến bộ điều hợp lặp lại) 
+
+hoặc` localhost' (tên thường được sử dụng cho cùng bộ điều hợp).
+
+
+
+
+Ví dụ: hãy xem xét một ứng dụng mua sắm cho phép người dùng xem 
+liệu một mặt hàng có trong kho trong một cửa hàng cụ thể hay không. 
+
+Để cung cấp thông tin về kho, ứng dụng phải truy vấn nhiều API REST back-end khác nhau, phụ thuộc vào sản phẩm và cửa hàng được đề cập. 
+
+Chức năng được triển khai bằng cách chuyển URL tới điểm cuối API back-end có liên quan thông qua một yêu cầu HTTP front-end. 
+
+Vì vậy, khi người dùng xem trạng thái còn hàng của một mặt hàng, trình duyệt của họ sẽ đưa ra yêu cầu như sau:
+
+        POST /product/stock HTTP/1.0
+        Content-Type: application/x-www-form-urlencoded
+        Content-Length: 118
+
+        stockApi=http://stock.weliketoshop.net:8080/product/stock/check%3FproductId%3D6%26storeId%3D1 
+        
+        
+Điều này khiến máy chủ thực hiện yêu cầu đến URL được chỉ định, 
+truy xuất trạng thái còn hàng và trả lại cho người dùng.
+
+Trong trường hợp này, kẻ tấn công có thể sửa đổi yêu cầu chỉ định địa chỉ URL cho chính máy chủ. 
+Ví dụ:
+        POST /product/stock HTTP/1.0
+        Content-Type: application/x-www-form-urlencoded
+        Content-Length: 118
+        
+        stockApi=http://localhost/admin 
+        
+        
+        
+        
+       
+Tại đây, máy chủ sẽ tìm nạp nội dung của URL /admin và trả lại cho người dùng.
+
+Tất nhiên, bây giờ kẻ tấn công có thể truy cập trực tiếp vào URL /admin. 
+
+Nhưng chức năng quản trị thông thường chỉ có thể truy cập được đối với những người dùng đã được xác thực phù hợp. 
+
+Vì vậy, kẻ tấn công chỉ cần truy cập trực tiếp vào URL sẽ không thấy bất kỳ điều gì quan tâm. 
+
+Tuy nhiên, khi yêu cầu đến URL /admin đến từ chính máy cục bộ, các điều khiển truy cập thông thường sẽ bị bỏ qua. 
+
+Ứng dụng cấp toàn quyền truy cập vào chức năng quản trị vì yêu cầu dường như bắt nguồn từ một vị trí đáng tin cậy.
+
+
+
+
+Tại sao các ứng dụng hoạt động theo cách này và mặc nhiên tin tưởng các yêu cầu đến từ máy cục bộ? Điều này có thể phát sinh vì nhiều lý do:
+
+    + Kiểm tra kiểm soát truy cập có thể được triển khai trong một thành phần khác nằm phía trước máy chủ ứng dụng. 
+    Khi một kết nối được thực hiện trở lại chính máy chủ, việc kiểm tra sẽ bị bỏ qua.
+    
+    + Đối với mục đích khôi phục thảm họa, ứng dụng có thể cho phép truy cập quản trị mà không cần đăng nhập, 
+    cho bất kỳ người dùng nào đến từ máy cục bộ. 
+    Điều này cung cấp một cách để quản trị viên khôi phục hệ thống trong trường hợp họ mất thông tin đăng nhập. 
+    Giả định ở đây là chỉ một người dùng hoàn toàn đáng tin cậy mới đến trực tiếp từ chính máy chủ.
+    
+    + Giao diện quản trị có thể đang lắng nghe trên một số cổng khác với ứng dụng chính và 
+    do đó, người dùng có thể không truy cập trực tiếp được.
+
+Loại mối quan hệ tin cậy này, trong đó các yêu cầu bắt nguồn từ máy cục bộ được xử lý khác với các yêu cầu thông thường, 
+thường là điều khiến SSRF trở thành một lỗ hổng nghiêm trọng.
+
