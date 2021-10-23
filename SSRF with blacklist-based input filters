@@ -1,0 +1,22 @@
+Một số ứng dụng chặn đầu vào chứa các tên máy chủ như `127.0.0.1` và` localhost` hoặc 
+các URL nhạy cảm như `/admin`. 
+Trong trường hợp này, bạn thường có thể phá vỡ bộ lọc bằng các kỹ thuật khác nhau:
+      + Sử dụng đại diện IP thay thế của `127.0.0.1`, chẳng hạn như `2130706433`, `017700000001` hoặc `127.1`.
+      + Đăng ký tên miền của riêng bạn có phân giải thành `127.0.0.1`. Bạn có thể sử dụng `spoofed.burpcollaborator.net` cho mục đích này.
+      + Làm xáo trộn các chuỗi bị chặn bằng cách sử dụng mã hóa URL hoặc biến thể chữ hoa chữ thường.
+      
+      
+      
+                                                                          LAB
+                                                                          
+
+    Visit a product, click "Check stock", intercept the request in Burp Suite, and send it to Burp Repeater. 
+    
+    Change the URL in the stockApi parameter to http://127.0.0.1/ and observe that the request is blocked. 
+    
+    Bypass the block by changing the URL to: http://127.1/ 
+    
+    Change the URL to http://127.1/admin and observe that the URL is blocked again. 
+    
+    Obfuscate the "a" by double-URL encoding it to %2561 to access the admin interface and delete the target user. 
+
