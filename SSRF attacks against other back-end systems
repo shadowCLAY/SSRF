@@ -1,0 +1,26 @@
+Một loại mối quan hệ tin cậy khác thường phát sinh với giả mạo yêu cầu phía máy chủ là nơi 
+máy chủ ứng dụng có thể tương tác với các hệ thống back-end khác mà người dùng không thể truy cập trực tiếp. 
+
+Các hệ thống này thường có địa chỉ IP riêng không định tuyến được. 
+Vì các hệ thống back-end thường được bảo vệ bởi cấu trúc liên kết mạng, chúng thường có vị trí bảo mật yếu hơn. 
+Trong nhiều trường hợp, hệ thống back-end nội bộ chứa chức năng nhạy cảm có thể được truy cập 
+mà không cần xác thực bởi bất kỳ ai có thể tương tác với hệ thống.
+
+Trong ví dụ trước, giả sử có một giao diện quản trị tại URL back-end 
+`https: // 192.168.0.68 / admin`. 
+Tại đây, kẻ tấn công có thể khai thác lỗ hổng SSRF để truy cập giao diện quản trị bằng cách gửi yêu cầu sau:
+
+
+          POST /product/stock HTTP/1.0
+          Content-Type: application/x-www-form-urlencoded
+          Content-Length: 118
+
+          stockApi=http://192.168.0.68/admin 
+          
+          
+          
+http://192.168.0.1:8080/admin sau đó đánh dấu octet cuối cùng của địa chỉ IP (số 1), nhấp vào "Thêm §".
+1 - 255 
+Response: 200 OK
+
+/admin/delete?username=carlos
